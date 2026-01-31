@@ -27,10 +27,10 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
     // Determine user-defined preset and profile for this guide
     const presetKey = `preset${guideId.charAt(0).toUpperCase()}${guideId.slice(1)}`;
     const profileKey = `profile${guideId.charAt(0).toUpperCase()}${guideId.slice(1)}`;
-    
+
     const rawPreset = extension_settings[extensionName]?.[presetKey] ?? '';
     const rawProfile = extension_settings[extensionName]?.[profileKey] ?? '';
-    
+
     const presetValue = rawPreset.trim().replace(/\|/g, ''); // Remove pipe characters to prevent STScript injection
     const profileValue = rawProfile.trim();
 
@@ -58,7 +58,7 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
     // Generate guide content: use raw command if requested
     const genLine = raw ? `${genCommandSuffix} |` : `/gen ${asClause}${genCommandSuffix} |`;
     const genScript = `${initCmd ? initCmd + '\n' : ''}${genLine}`;
-    
+
     // Second: Build injection script that will use the captured content
     let injectionScript = finalCommand;
 
@@ -93,24 +93,41 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
                 showOutput: false,
                 handleExecutionErrors: true
             });
-            
+
             // Capture the guide output
             const capturedGuideOutput = genResult?.pipe || '';
             debugLog(`[${extensionName}] Captured guide output length: ${capturedGuideOutput?.length || 0}`);
-            
+
             // Step 2: Execute injection script using the captured content
             if (capturedGuideOutput && capturedGuideOutput.trim() !== '') {
                 // Replace {{pipe}} in injection script with actual content
                 const injectionScriptWithContent = injectionScript.replace(/\{\{pipe\}\}/g, capturedGuideOutput);
                 debugLog(`[${extensionName}] Executing injection script...`);
-                
+
                 await context.executeSlashCommandsWithOptions(injectionScriptWithContent, {
                     showOutput: false,
                     handleExecutionErrors: true
                 });
                 debugLog(`[${extensionName}] Injection script executed successfully`);
+
+                // Write to variable if this is Custom Auto Guide and variable writing is enabled
+                if (guideId === 'customAuto') {
+                    const writeToVar = extension_settings[extensionName]?.writeCustomAutoGuideToVar ?? false;
+                    if (writeToVar) {
+                        const varName = extension_settings[extensionName]?.customAutoGuideVarName ?? 'custom_auto_guide';
+                        try {
+                            await context.executeSlashCommandsWithOptions(`/setvar key=${varName} ${capturedGuideOutput} |`, {
+                                showOutput: false,
+                                handleExecutionErrors: true
+                            });
+                            debugLog(`[${extensionName}] Wrote Custom Auto Guide content to variable "${varName}"`);
+                        } catch (error) {
+                            console.error(`[${extensionName}] Error writing to variable "${varName}":`, error);
+                        }
+                    }
+                }
             }
-            
+
             // Create Situational Tracker note if enabled and not skipped
             debugLog(`[${extensionName}] Situational Tracker check: skipSituationalTracker=${skipSituationalTracker}, setting=${extension_settings[extensionName]?.persistentGuidesInChatlog}, guideId=${guideId}`);
             if (!skipSituationalTracker && extension_settings[extensionName]?.persistentGuidesInChatlog) {
@@ -120,9 +137,9 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
                     // Check if the last message is a Situational Tracker, or if the last message is a Stat Tracker, check the one before that
                     const lastMessage = context.chat[context.chat.length - 1];
                     const secondLastMessage = context.chat.length > 1 ? context.chat[context.chat.length - 2] : null;
-                    
+
                     let lastSituationalTrackerMessage = null;
-                    
+
                     if (lastMessage?.extra?.type === 'situationaltracker') {
                         // Last message is a Situational Tracker - append to it
                         lastSituationalTrackerMessage = lastMessage;
@@ -132,7 +149,7 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
                         lastSituationalTrackerMessage = secondLastMessage;
                         debugLog(`[${extensionName}] Last message is Stat Tracker, but second last is Situational Tracker, will append to that`);
                     }
-                    
+
                     if (lastSituationalTrackerMessage) {
                         // Append to existing message - add as a new collapsible section
                         const separator = '\n\n---\n\n';
@@ -145,7 +162,7 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
         ${guideContent}
     </div>
 </details>`;
-                        
+
                         // Insert the new collapsible section after the closing </details> tag
                         const lastDetailsIndex = lastSituationalTrackerMessage.mes.lastIndexOf('</details>');
                         if (lastDetailsIndex !== -1) {
@@ -156,7 +173,7 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
                             // Fallback: just append to the end
                             lastSituationalTrackerMessage.mes += separator + newCollapsibleSection;
                         }
-                        
+
                         await context.saveChat();
                         await context.reloadCurrentChat();
                         debugLog(`[${extensionName}] Appended ${guideId} guide content as new collapsible section to existing Situational Tracker`);
@@ -164,7 +181,7 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
                         // Create new Situational Tracker note
                         const guideName = guideId.charAt(0).toUpperCase() + guideId.slice(1);
                         const content = `${guideName} Guide:\n${guideContent}`;
-                        
+
                         // Create collapsible message with collapsed state by default
                         const collapsibleContent = `<details class="situational-tracker-details" data-tracker-type="situationaltracker">
     <summary>
@@ -174,7 +191,7 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
         ${content}
     </div>
 </details>`;
-                        
+
                         debugLog(`[${extensionName}] Creating new Situational Tracker note for ${guideId}`);
                         await createTrackerNote(collapsibleContent, 'Situational Tracker', 'situationaltracker');
                         debugLog(`[${extensionName}] Situational Tracker note created successfully`);
@@ -185,7 +202,7 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
             } else {
                 debugLog(`[${extensionName}] Situational Tracker creation skipped: skipSituationalTracker=${skipSituationalTracker}, setting=${extension_settings[extensionName]?.persistentGuidesInChatlog}`);
             }
-            
+
             if (capturedGuideOutput && capturedGuideOutput.trim() !== '') {
                 return capturedGuideOutput;
             }

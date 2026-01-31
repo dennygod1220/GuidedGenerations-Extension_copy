@@ -175,6 +175,34 @@
                     </small>
                 </div>
                 <hr>
+                <h4>ST 變數寫入設定</h4>
+                <small class="setting_item_description">啟用後，Custom Guide 和 Custom Auto Guide 生成的內容將自動寫入 SillyTavern 的 local 變數，方便在其他 STScript 命令中使用。</small>
+                <div class="setting_item">
+                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                        <input type="checkbox" id="gg_writeCustomGuideToVar" name="writeCustomGuideToVar" class="gg-setting-input">
+                        <label for="gg_writeCustomGuideToVar" style="margin-left: 8px;">Custom Guide 寫入變數</label>
+                    </div>
+                    <small class="setting_item_description">
+                        啟用後，Custom Guide 的內容將寫入變數 <code>custom_{引導名稱}</code>（例如：<code>custom_MyGuide</code>）。可使用 <code>/echo {{getvar::custom_MyGuide}}</code> 查看內容。
+                    </small>
+                </div>
+                <div class="setting_item">
+                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                        <input type="checkbox" id="gg_writeCustomAutoGuideToVar" name="writeCustomAutoGuideToVar" class="gg-setting-input">
+                        <label for="gg_writeCustomAutoGuideToVar" style="margin-left: 8px;">Custom Auto Guide 寫入變數</label>
+                    </div>
+                    <small class="setting_item_description">
+                        啟用後，Custom Auto Guide 的內容將寫入下方指定的變數名稱。
+                    </small>
+                </div>
+                <div class="setting_item">
+                    <label for="gg_customAutoGuideVarName" style="margin-bottom: 5px; display: block;">Custom Auto Guide 變數名稱：</label>
+                    <input type="text" id="gg_customAutoGuideVarName" name="customAutoGuideVarName" class="gg-setting-input text_pole" placeholder="custom_auto_guide" style="width: 300px;">
+                    <small class="setting_item_description">
+                        指定 Custom Auto Guide 內容要寫入的變數名稱（預設：<code>custom_auto_guide</code>）。可使用 <code>/echo {{getvar::變數名稱}}</code> 查看內容。
+                    </small>
+                </div>
+                <hr>
                 <h4>Preset Usage</h4>
                                 <small class="setting_item_description">Assign specific System Prompts (Presets) to different Guided Generation actions. When a preset is selected, it will be temporarily activated just before the guide runs, then deactivated. Use the 'GGSystemPrompt' button to quickly fill the field with the default guidance preset.</small>
                 

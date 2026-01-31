@@ -157,7 +157,7 @@ export class EditGuidesPopup {
                 if (editPositionInput) {
                     editPositionInput.value = guideData.position ?? 0;
                 }
-                
+
                 if (editSection) editSection.style.display = 'block';
                 if (customSection) customSection.style.display = 'none';
 
@@ -197,6 +197,14 @@ export class EditGuidesPopup {
             const context = SillyTavern.getContext();
             try {
                 await context.executeSlashCommandsWithOptions(`/inject id=custom_${newName} position=chat scan=true depth=${newDepth} role=${role} .|`, { showOutput: false });
+
+                // Write to variable if enabled
+                const writeToVar = extension_settings[extensionName]?.writeCustomGuideToVar ?? false;
+                if (writeToVar) {
+                    const varName = `custom_${newName}`;
+                    await context.executeSlashCommandsWithOptions(`/setvar key=${varName} |`, { showOutput: false });
+                }
+
                 const key = `script_inject_custom_${newName}`;
                 this.injectionData[key] = { value: '', depth: newDepth, position: 1 }; // Default to 'In Chat'
                 // Persist new injection
@@ -217,7 +225,7 @@ export class EditGuidesPopup {
             }
         });
 
-        
+
 
         // Generate new custom guide content without saving
         generateButton?.addEventListener('click', async () => {
@@ -225,24 +233,37 @@ export class EditGuidesPopup {
             const newDepth = parseInt(newDepthInput.value, 10) || 1;
             const genPrompt = genPromptInput.value.trim();
 
-            if (!newName) { 
-                alert('Guide Name is required.'); 
-                return; 
+            if (!newName) {
+                alert('Guide Name is required.');
+                return;
             }
             const validNameRegex = /^[A-Za-z0-9_-]+$/;
-            if (!validNameRegex.test(newName)) { 
-                alert('Invalid Guide Name. Only letters, numbers, underscores, and hyphens are allowed.'); 
-                return; 
+            if (!validNameRegex.test(newName)) {
+                alert('Invalid Guide Name. Only letters, numbers, underscores, and hyphens are allowed.');
+                return;
             }
-            if (!genPrompt) { 
-                alert('Generation Prompt is required.'); 
-                return; 
+            if (!genPrompt) {
+                alert('Generation Prompt is required.');
+                return;
             }
 
             const role = extension_settings[extensionName]?.injectionEndRole ?? 'system';
             const context = SillyTavern.getContext();
-            const script = `/gen ${genPrompt} | /inject id=custom_${newName} position=chat scan=true depth=${newDepth} role=${role} [Take into special Consideration: {{pipe}}] | /listinjects |`;
-            
+
+            // Build the script with variable writing if enabled
+            let script = `/gen ${genPrompt} |`;
+
+            // Check if variable writing is enabled
+            const writeToVar = extension_settings[extensionName]?.writeCustomGuideToVar ?? false;
+            if (writeToVar) {
+                // Write to variable first, then inject
+                const varName = `custom_${newName}`;
+                script += ` /setvar key=${varName} {{pipe}} |`;
+            }
+
+            // Add injection command
+            script += ` /inject id=custom_${newName} position=chat scan=true depth=${newDepth} role=${role} [Take into special Consideration: {{pipe}}] | /listinjects |`;
+
             try {
                 await context.executeSlashCommandsWithOptions(script, { showOutput: false });
                 this.close();
@@ -327,7 +348,7 @@ export class EditGuidesPopup {
                 selectElement.appendChild(option);
             });
         } else {
-             // Handle case with no guides - maybe disable select/show message
+            // Handle case with no guides - maybe disable select/show message
             debugLog('[EditGuidesPopup] No guides found to populate editor.');
         }
 
@@ -336,13 +357,13 @@ export class EditGuidesPopup {
         textareaElement.disabled = true;
         saveButton.disabled = true;
 
-        
+
     }
 
     /**
      * Adjust popup position/size based on window dimensions (basic example).
      */
-     adjustPopupPosition() {
+    adjustPopupPosition() {
         if (!this.popupElement) return;
 
         const popupContent = this.popupElement.querySelector('.gg-popup-content');
@@ -356,7 +377,7 @@ export class EditGuidesPopup {
         // Relying on CSS (e.g., position: absolute, top: 50%, left: 50%, transform: translate(-50%, -50%))
         // and max-height/max-width set in style.css.
         debugLog(`[EditGuidesPopup] Window size: ${windowWidth}x${windowHeight}.`);
-     }
+    }
 
     /**
      * Close the popup.
@@ -391,6 +412,21 @@ export class EditGuidesPopup {
         if (success) {
             debugLog(`[EditGuidesPopup] Guide "${this.selectedGuideKey}" updated directly in context.`);
             this.injectionData[this.selectedGuideKey].value = newContent;
+
+            // Write to variable if enabled and this is a custom guide
+            const writeToVar = extension_settings[extensionName]?.writeCustomGuideToVar ?? false;
+            if (writeToVar && this.selectedGuideKey.startsWith('script_inject_custom_')) {
+                const guideName = this.selectedGuideKey.replace('script_inject_', '');
+                const varName = guideName; // Already has 'custom_' prefix
+                const context = SillyTavern.getContext();
+                try {
+                    await context.executeSlashCommandsWithOptions(`/setvar key=${varName} ${newContent} |`, { showOutput: false });
+                    debugLog(`[EditGuidesPopup] Updated variable "${varName}" with new content.`);
+                } catch (error) {
+                    console.error(`[EditGuidesPopup] Error updating variable "${varName}":`, error);
+                }
+            }
+
             this.close();
             if (window.GuidedGenerations && typeof window.GuidedGenerations.updatePersistentGuideCounter === 'function') {
                 window.GuidedGenerations.updatePersistentGuideCounter();

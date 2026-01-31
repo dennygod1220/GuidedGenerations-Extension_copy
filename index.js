@@ -15,7 +15,7 @@ import { updateCharacter } from './scripts/persistentGuides/updateCharacter.js';
 // Import the new Custom Auto Guide
 import customAutoGuide from './scripts/persistentGuides/customAutoGuide.js';
 // Import necessary functions/objects from SillyTavern
-import { getContext, loadExtensionSettings, extension_settings, renderExtensionTemplateAsync } from '../../../extensions.js'; 
+import { getContext, loadExtensionSettings, extension_settings, renderExtensionTemplateAsync } from '../../../extensions.js';
 // Import Preset Manager
 import { getPresetManager } from '../../../../scripts/preset-manager.js';
 import { loadSettingsPanel } from './scripts/settingsPanel.js';
@@ -62,12 +62,12 @@ let debugMessages = [];
 function captureDebugMessage(level, ...args) {
     if (extension_settings[extensionName]?.debugMode) {
         const timestamp = new Date().toISOString();
-        
+
         // Get stack trace information
         const stack = new Error().stack;
         let fileInfo = 'Unknown';
         let lineInfo = 'Unknown';
-        
+
         if (stack) {
             // Parse stack trace to find the calling function
             const stackLines = stack.split('\n');
@@ -88,7 +88,7 @@ function captureDebugMessage(level, ...args) {
                 }
             }
         }
-        
+
         const message = {
             timestamp,
             level,
@@ -106,7 +106,7 @@ function captureDebugMessage(level, ...args) {
             })
         };
         debugMessages.push(message);
-        
+
         // Keep only the last 1000 messages to prevent memory issues
         if (debugMessages.length > 1000) {
             debugMessages = debugMessages.slice(-1000);
@@ -172,7 +172,7 @@ export function getDebugMessagesAsText() {
         const fileLine = `${msg.file}:${msg.line}`.padEnd(20);
         return `[${msg.timestamp}] ${level} [${fileLine}] ${msg.args.join(' ')}`;
     }).join('\n');
-} 
+}
 // Removed storedInput as recovery now uses stscript global vars
 
 export const defaultSettings = {
@@ -256,7 +256,7 @@ export const defaultSettings = {
     promptSituational: '[OOC: Answer me out of Character! Don\'t continue the RP.  Analyze the chat history and provide a concise summary of: 1. Current location and setting (indoors/outdoors, time of day, weather if relevant) 2. Present characters and their current activities 3. Relevant objects, items, or environmental details that could influence interactions 4. Recent events or topics of conversation (last 10-20 messages) Keep the overview factual and neutral without speculation. Format in clear paragraphs.] ',
     promptRules: '[OOC: Answer me out of Character! Don\'t continue the RP.  Create a list of explicit rules that {{char}} has learned and follows from the story and their character description. Only include rules explicitly established in chat history or character info. Format as a numbered list.] ',
     promptCorrections: '[OOC: Answer me out of Character! Don\'t continue the RP.  Do not continue the story do not wrote in character, instead write {{char}}\'s last response (msgtorework) again but change it to reflect the following: {{input}}. Don\'t make any other changes besides this.]',
-            promptSpellchecker: 'Without any intro or outro correct the grammar, punctuation and improve the paragraph\'s flow without adding anything else of: {{input}}',
+    promptSpellchecker: 'Without any intro or outro correct the grammar, punctuation and improve the paragraph\'s flow without adding anything else of: {{input}}',
     promptImpersonate1st: 'Write in first Person perspective from {{user}}. {{input}}',
     promptImpersonate2nd: 'Write in second Person perspective from {{user}}, using you/yours for {{user}}. {{input}}',
     promptImpersonate3rd: 'Write in third Person perspective from {{user}} using third-person pronouns for {{user}}. {{input}}',
@@ -283,6 +283,10 @@ export const defaultSettings = {
     depthPromptGuidedResponse: 0,
     depthPromptGuidedSwipe: 0,
     depthPromptCustomAuto: 1, // Default depth for Custom Auto Guide
+    // ST Variable Writing Settings
+    writeCustomGuideToVar: false, // Enable writing Custom Guide content to ST variable
+    writeCustomAutoGuideToVar: false, // Enable writing Custom Auto Guide content to ST variable
+    customAutoGuideVarName: 'custom_auto_guide', // Variable name for Custom Auto Guide
     LastPatchNoteVersion: '1.4.3' // Default extension version for patch notes
 };
 
@@ -309,7 +313,7 @@ async function loadSettings() {
         debugLog(`Initializing settings with defaults.`);
         Object.assign(extension_settings[extensionName], defaultSettings);
     } else {
-         debugLog(`Settings already loaded, ensuring all keys exist.`);
+        debugLog(`Settings already loaded, ensuring all keys exist.`);
         // Ensure all default keys exist (migration / update handling)
         for (const key in defaultSettings) {
             if (extension_settings[extensionName][key] === undefined) {
@@ -321,7 +325,7 @@ async function loadSettings() {
 
     // Handle backward compatibility for profile settings
     migrateProfileSettings();
-    
+
     // Debug logging for presetFun specifically
     debugLog(`presetFun setting value:`, extension_settings[extensionName].presetFun);
     debugLog(`presetFun default value:`, defaultSettings.presetFun);
@@ -341,7 +345,7 @@ async function loadSettings() {
 function migrateProfileSettings() {
     const settings = extension_settings[extensionName];
     if (!settings) return;
-    
+
     // List of all preset keys that need corresponding profile keys
     const presetKeys = [
         'presetClothes', 'presetState', 'presetThinking', 'presetSituational', 'presetRules',
@@ -349,10 +353,10 @@ function migrateProfileSettings() {
         'presetImpersonate1st', 'presetImpersonate2nd', 'presetImpersonate3rd',
         'presetCustomAuto', 'presetFun'
     ];
-    
+
     presetKeys.forEach(presetKey => {
         const profileKey = presetKey.replace('preset', 'profile');
-        
+
         // If profile key doesn't exist but preset key does, set profile to empty (current profile)
         if (settings[presetKey] !== undefined && settings[profileKey] === undefined) {
             settings[profileKey] = '';
@@ -371,14 +375,14 @@ async function updateSettingsUI() {
             if (checkbox) {
                 // Check if the setting exists before trying to access it
                 if (extension_settings[extensionName] && extension_settings[extensionName].hasOwnProperty(key)) {
-                     checkbox.checked = extension_settings[extensionName][key];
+                    checkbox.checked = extension_settings[extensionName][key];
                 } else {
                     debugWarn(`Setting key "${key}" not found in loaded settings during UI update. Using default: ${defaultSettings[key]}`);
                     checkbox.checked = defaultSettings[key]; // Use default if missing
                 }
             } else {
-                 // Allow this warning during initial load before template might be ready
-                 // console.warn(`${extensionName}: Could not find checkbox for setting "${key}" during updateSettingsUI.`);
+                // Allow this warning during initial load before template might be ready
+                // console.warn(`${extensionName}: Could not find checkbox for setting "${key}" during updateSettingsUI.`);
             }
         });
 
@@ -400,19 +404,19 @@ async function updateSettingsUI() {
         try {
             const profileList = await getProfileList();
             debugLog(`[${extensionName}] Profile list received:`, profileList);
-            
-            const profileKeys = ['profileClothes','profileState','profileThinking','profileSituational','profileRules',
-             'profileCustom','profileCorrections','profileSpellchecker','profileEditIntros',
-             'profileImpersonate1st','profileImpersonate2nd','profileImpersonate3rd',
-             'profileCustomAuto','profileFun','profileTrackerDetermine','profileTrackerUpdate'
+
+            const profileKeys = ['profileClothes', 'profileState', 'profileThinking', 'profileSituational', 'profileRules',
+                'profileCustom', 'profileCorrections', 'profileSpellchecker', 'profileEditIntros',
+                'profileImpersonate1st', 'profileImpersonate2nd', 'profileImpersonate3rd',
+                'profileCustomAuto', 'profileFun', 'profileTrackerDetermine', 'profileTrackerUpdate'
             ];
-            
+
             profileKeys.forEach(key => {
                 const select = document.getElementById(key);
                 if (select) {
                     // Clear existing options
                     select.innerHTML = '<option value="">None</option>';
-                    
+
                     // Add profile options
                     if (Array.isArray(profileList) && profileList.length > 0) {
                         profileList.forEach(profileName => {
@@ -425,7 +429,7 @@ async function updateSettingsUI() {
                     } else {
                         debugLog(`[${extensionName}] No profiles available for ${key}, profileList:`, profileList);
                     }
-                    
+
                     // Set current value
                     select.value = extension_settings[extensionName][key] ?? defaultSettings[key] ?? '';
                 } else {
@@ -437,10 +441,10 @@ async function updateSettingsUI() {
         }
 
         // Populate preset dropdowns with correct presets for selected profiles
-        ['presetClothes','presetState','presetThinking','presetSituational','presetRules',
-         'presetCustom','presetCorrections','presetSpellchecker','presetEditIntros',
-         'presetImpersonate1st','presetImpersonate2nd','presetImpersonate3rd',
-         'presetCustomAuto','presetFun','presetTrackerDetermine','presetTrackerUpdate'
+        ['presetClothes', 'presetState', 'presetThinking', 'presetSituational', 'presetRules',
+            'presetCustom', 'presetCorrections', 'presetSpellchecker', 'presetEditIntros',
+            'presetImpersonate1st', 'presetImpersonate2nd', 'presetImpersonate3rd',
+            'presetCustomAuto', 'presetFun', 'presetTrackerDetermine', 'presetTrackerUpdate'
         ].forEach(async (key) => {
             const select = document.getElementById(key);
             if (select) {
@@ -450,10 +454,10 @@ async function updateSettingsUI() {
                     debugLog(`presetFun current value:`, select.value);
                     debugLog(`presetFun setting value:`, extension_settings[extensionName][key]);
                 }
-                
+
                 // Use the improved populatePresetDropdown function that checks for selected profiles
                 await populatePresetDropdown(select);
-                
+
                 // Set current value after populating
                 select.value = extension_settings[extensionName][key] ?? defaultSettings[key] ?? '';
             } else {
@@ -465,7 +469,7 @@ async function updateSettingsUI() {
         });
 
         // Populate guide prompt override textareas
-        ['promptClothes','promptState','promptThinking','promptSituational','promptRules','promptCorrections','promptSpellchecker','promptImpersonate1st','promptImpersonate2nd','promptImpersonate3rd','promptGuidedResponse','promptGuidedSwipe','promptGuidedContinue','customAutoGuidePrompt'].forEach(key => {
+        ['promptClothes', 'promptState', 'promptThinking', 'promptSituational', 'promptRules', 'promptCorrections', 'promptSpellchecker', 'promptImpersonate1st', 'promptImpersonate2nd', 'promptImpersonate3rd', 'promptGuidedResponse', 'promptGuidedSwipe', 'promptGuidedContinue', 'customAutoGuidePrompt'].forEach(key => {
             const textarea = document.getElementById(`gg_${key}`);
             if (textarea) {
                 textarea.value = extension_settings[extensionName][key] ?? defaultSettings[key] ?? '';
@@ -536,7 +540,7 @@ const handleSettingsChangeDelegated = async (event) => {
             const button = document.getElementById('gg_continue_button');
             if (button) button.style.display = event.target.checked ? '' : 'none';
         }
-        
+
         // Special handling for profile dropdowns - repopulate preset dropdowns when profile changes
         if (event.target.name && event.target.name.startsWith('profile')) {
             const guideName = event.target.name.replace('profile', '');
@@ -548,14 +552,14 @@ const handleSettingsChangeDelegated = async (event) => {
                     // Get and store the API type for this profile
                     const { getProfileApiType } = await import('./scripts/persistentGuides/guideExports.js');
                     const apiType = await getProfileApiType(selectedProfile);
-                    
+
                     if (apiType) {
                         const apiTypeFieldName = `${event.target.name}ApiType`;
                         extension_settings[extensionName][apiTypeFieldName] = apiType;
                         debugLog(`[${extensionName}] Stored API type "${apiType}" for profile "${selectedProfile}"`);
                     }
                 }
-                
+
                 // Update the preset dropdown
                 await handleProfileChangeForPresets(selectedProfile, presetSelect);
             }
@@ -573,7 +577,7 @@ function handleSettingChange(event) {
         settingValue = target.checked;
     } else if (target.tagName === 'SELECT') { // Handle dropdowns
         settingValue = target.value;
-        
+
         // Handle preset and profile dropdowns - no validation needed as values are preset IDs or profile names
         const presetFields = ['presetClothes', 'presetState', 'presetThinking', 'presetSituational', 'presetRules', 'presetCustom', 'presetCorrections', 'presetSpellchecker', 'presetEditIntros', 'presetImpersonate1st', 'presetImpersonate2nd', 'presetImpersonate3rd', 'presetCustomAuto'];
         const profileFields = ['profileClothes', 'profileState', 'profileThinking', 'profileSituational', 'profileRules', 'profileCustom', 'profileCorrections', 'profileSpellchecker', 'profileEditIntros', 'profileImpersonate1st', 'profileImpersonate2nd', 'profileImpersonate3rd', 'profileCustomAuto', 'profileFun', 'profileTracker'];
@@ -585,7 +589,7 @@ function handleSettingChange(event) {
         settingValue = target.value;
         if (typeof settingValue === 'string') {
             settingValue = settingValue.trim().replace(/\r?\n/g, '\n');
-            
+
             // Validate preset fields to prevent pipe characters
             const presetFields = ['presetClothes', 'presetState', 'presetThinking', 'presetSituational', 'presetRules', 'presetCustom', 'presetCorrections', 'presetSpellchecker', 'presetEditIntros', 'presetImpersonate1st', 'presetImpersonate2nd', 'presetImpersonate3rd', 'presetCustomAuto'];
             if (presetFields.includes(settingName) && settingValue.includes('|')) {
@@ -599,7 +603,7 @@ function handleSettingChange(event) {
         settingValue = target.value;
         if (typeof settingValue === 'string') {
             settingValue = settingValue.trim().replace(/\r?\n/g, '\n');
-            
+
             // Validate preset fields to prevent pipe characters
             const presetFields = ['presetClothes', 'presetState', 'presetThinking', 'presetSituational', 'presetRules', 'presetCustom', 'presetCorrections', 'presetSpellchecker', 'presetEditIntros', 'presetImpersonate1st', 'presetImpersonate2nd', 'presetImpersonate3rd', 'presetCustomAuto'];
             if (presetFields.includes(settingName) && settingValue.includes('|')) {
@@ -640,42 +644,42 @@ function handleSettingChange(event) {
 async function handleProfileChangeForPresets(selectedProfile, presetDropdown) {
     try {
         debugLog(`[${extensionName}] Profile changed to: "${selectedProfile}", updating preset dropdown...`);
-        
+
         // Clear existing preset options
         presetDropdown.innerHTML = '';
-        
+
         if (!selectedProfile || selectedProfile.trim() === '') {
             debugLog(`[${extensionName}] No profile selected, populating with current profile's presets`);
             await populatePresetDropdown(presetDropdown);
             return;
         }
-        
+
         // Get the API type for the selected profile without switching to it
         const { getProfileApiType, getPresetsForApiType } = await import('./scripts/persistentGuides/guideExports.js');
         const apiType = await getProfileApiType(selectedProfile);
-        
+
         if (!apiType) {
             debugLog(`[${extensionName}] Could not determine API type for profile "${selectedProfile}", using current profile's presets`);
             await populatePresetDropdown(presetDropdown);
             return;
         }
-        
+
         debugLog(`[${extensionName}] Profile "${selectedProfile}" uses API type: "${apiType}"`);
-        
+
         // Get presets for this API type without switching profiles
         const presetList = await getPresetsForApiType(apiType);
-        
+
         if (!presetList) {
             debugLog(`[${extensionName}] Could not get presets for API type "${apiType}", using current profile's presets`);
             await populatePresetDropdown(presetDropdown);
             return;
         }
-        
+
         debugLog(`[${extensionName}] Retrieved ${presetList.preset_names?.length || 0} presets for API type "${apiType}"`);
-        
+
         // Populate the preset dropdown with the API-specific presets
         await populatePresetDropdownWithList(presetDropdown, presetList);
-        
+
     } catch (error) {
         console.error(`[${extensionName}] Error handling profile change for presets:`, error);
         // Fallback to current profile's presets
@@ -693,13 +697,13 @@ async function handleProfileChangeForPresets(selectedProfile, presetDropdown) {
 function populatePresetDropdownWithList(presetSelect, presetList) {
     // Clear existing options
     presetSelect.innerHTML = '<option value="">None</option>';
-    
+
     // Check if presetList is valid
     if (!presetList) {
         debugLog(`[${extensionName}] No preset list provided for dropdown population`);
         return;
     }
-    
+
     // Add preset options - handle multiple possible data structures
     if (presetList.preset_names) {
         // Newer format: presetList has preset_names property
@@ -772,22 +776,22 @@ function updateExtensionButtons() {
     const menuButtonsContainer = document.createElement('div');
     menuButtonsContainer.id = 'gg-menu-buttons-container';
     menuButtonsContainer.className = 'gg-menu-buttons-container';
-    
+
     // Create a separate container for action buttons (right side)
     const actionButtonsContainer = document.createElement('div');
     actionButtonsContainer.id = 'gg-regular-buttons-container';
     actionButtonsContainer.className = 'gg-regular-buttons-container';
-    
+
     // Create a spacer/QR container that will either hold QR buttons or just provide spacing
     const qrContainer = document.createElement('div');
     qrContainer.id = 'gg-qr-container';
     qrContainer.className = 'gg-qr-container';
-    
+
     // Add all three containers to the main button container in the correct order
     buttonContainer.appendChild(menuButtonsContainer);
     buttonContainer.appendChild(qrContainer);
     buttonContainer.appendChild(actionButtonsContainer);
-    
+
     // --- Create GG Tools Menu Button (Wand) --- 
     let ggMenuButton = document.getElementById('gg_menu_button');
     if (!ggMenuButton) {
@@ -939,7 +943,7 @@ function updateExtensionButtons() {
         // Add original items first
         ggToolsMenu.appendChild(simpleSendMenuItem);
         ggToolsMenu.appendChild(recoverInputMenuItem);
-        
+
         // Add a separator
         const separator = document.createElement('hr');
         separator.className = 'pg-separator';
@@ -951,7 +955,7 @@ function updateExtensionButtons() {
         const separator2 = document.createElement('hr');
         separator2.className = 'pg-separator';
         ggToolsMenu.appendChild(separator2);
-        
+
         // Add Help menu item
         const helpMenuItem = document.createElement('a');
         helpMenuItem.href = '#';
@@ -993,9 +997,9 @@ function updateExtensionButtons() {
 
             // --- Measure Height Correctly ---
             // Temporarily show the menu off-screen to measure its height
-            ggToolsMenu.style.visibility = 'hidden'; 
+            ggToolsMenu.style.visibility = 'hidden';
             ggToolsMenu.style.display = 'block'; // Or the display type it uses when shown
-            const menuHeight = ggToolsMenu.offsetHeight; 
+            const menuHeight = ggToolsMenu.offsetHeight;
             ggToolsMenu.style.display = ''; // Reset display before final positioning
             ggToolsMenu.style.visibility = ''; // Reset visibility
             // ---------------------------------
@@ -1022,7 +1026,7 @@ function updateExtensionButtons() {
                 ggToolsMenu.classList.remove('shown');
             }
         });
-    } 
+    }
     // Add menu button to the menu buttons container
     menuButtonsContainer.appendChild(ggMenuButton);
 
@@ -1041,12 +1045,12 @@ function updateExtensionButtons() {
         pgToolsMenu.className = 'gg-tools-menu'; // Use same dropdown menu styling
 
         // Add menu items for each persistent guide
-        const createGuideItem = (name, icon, action, description) => { 
+        const createGuideItem = (name, icon, action, description) => {
             const item = document.createElement('a');
             item.href = '#';
             item.className = 'interactable'; // Use interactable class
             item.innerHTML = `<i class="fa-solid ${icon} fa-fw"></i><span data-i18n="${name}">${name}</span>`; // Add icon + span
-            item.title = description; 
+            item.title = description;
             item.addEventListener('click', (event) => {
                 action();
                 pgToolsMenu.classList.remove('shown');
@@ -1084,23 +1088,23 @@ function updateExtensionButtons() {
                 })
                 .catch(error => console.error(`${extensionName}: Error importing ${guide.name} guide:`, error));
         }))
-        .then(() => {
-            // After all content guides, add the separator
-            const separator = document.createElement('hr');
-            separator.className = 'pg-separator';
-            pgToolsMenu.appendChild(separator);
+            .then(() => {
+                // After all content guides, add the separator
+                const separator = document.createElement('hr');
+                separator.className = 'pg-separator';
+                pgToolsMenu.appendChild(separator);
 
-            // Then load the tool guides
-            return Promise.all(toolGuides.map(guide => {
-                return import(guide.path)
-                    .then(module => {
-                        const guideItem = createGuideItem(guide.name, guide.icon, module.default, guide.description);
-                        pgToolsMenu.appendChild(guideItem);
-                    })
-                    .catch(error => console.error(`${extensionName}: Error importing ${guide.name} tool:`, error));
-            }));
-        })
-        .catch(error => console.error(`${extensionName}: Error setting up persistent guides menu:`, error));
+                // Then load the tool guides
+                return Promise.all(toolGuides.map(guide => {
+                    return import(guide.path)
+                        .then(module => {
+                            const guideItem = createGuideItem(guide.name, guide.icon, module.default, guide.description);
+                            pgToolsMenu.appendChild(guideItem);
+                        })
+                        .catch(error => console.error(`${extensionName}: Error importing ${guide.name} tool:`, error));
+                }));
+            })
+            .catch(error => console.error(`${extensionName}: Error setting up persistent guides menu:`, error));
 
         // Append the menu itself to the body
         document.body.appendChild(pgToolsMenu);
@@ -1109,11 +1113,11 @@ function updateExtensionButtons() {
         pgMenuButton.addEventListener('click', (event) => {
 
             // Temporarily show the menu off-screen to measure its height
-            pgToolsMenu.style.visibility = 'hidden'; 
+            pgToolsMenu.style.visibility = 'hidden';
             pgToolsMenu.style.display = 'block';
-            const menuHeight = pgToolsMenu.offsetHeight; 
-            pgToolsMenu.style.display = ''; 
-            pgToolsMenu.style.visibility = ''; 
+            const menuHeight = pgToolsMenu.offsetHeight;
+            pgToolsMenu.style.display = '';
+            pgToolsMenu.style.visibility = '';
 
             // Calculate position before showing
             const buttonRect = pgMenuButton.getBoundingClientRect();
@@ -1137,7 +1141,7 @@ function updateExtensionButtons() {
                 pgToolsMenu.classList.remove('shown');
             }
         });
-    } 
+    }
     // Add Persistent Guides menu button to the menu buttons container
     menuButtonsContainer.appendChild(pgMenuButton);
 
@@ -1147,7 +1151,7 @@ function updateExtensionButtons() {
         const button = document.createElement('div');
         button.id = id;
         button.className = 'gg-action-button'; // Base class
-        
+
         // Split the icon class string by spaces and add each class separately
         if (iconClass) {
             const iconClasses = iconClass.split(' ');
@@ -1155,35 +1159,35 @@ function updateExtensionButtons() {
                 if (cls) button.classList.add(cls);
             });
         }
-        
+
         button.classList.add('interactable'); // Add interactable class
         button.title = title;
-        
+
         button.addEventListener('click', (event) => {
             actionFunc(event);
         });
-        
+
         return button;
     };
-    
+
     // Create an array to store all buttons that will go in the regular buttons container
     // We'll add the buttons in the desired order and then add them to the container
     const regularButtons = [];
-    
+
     // Add individual tool buttons first (left side)
-    
+
     // Simple Send button
     if (settings.showSimpleSendButton) {
         const simpleSendButton = createActionButton('gg_simple_send_button', 'Simple Send', 'fa-solid fa-paper-plane', simpleSend);
         regularButtons.push(simpleSendButton);
     }
-    
+
     // Recover Input button
     if (settings.showRecoverInputButton) {
         const recoverInputButton = createActionButton('gg_recover_input_button', 'Recover Input', 'fa-solid fa-arrow-rotate-left', recoverInput);
         regularButtons.push(recoverInputButton);
     }
-    
+
     // Edit Intros button
     if (settings.showEditIntrosButton) {
         const editIntrosButton = createActionButton('gg_edit_intros_button', 'Edit Intros', 'fa-solid fa-user-edit', async () => {
@@ -1192,7 +1196,7 @@ function updateExtensionButtons() {
         });
         regularButtons.push(editIntrosButton);
     }
-    
+
     // Corrections button
     if (settings.showCorrectionsButton) {
         const correctionsButton = createActionButton('gg_corrections_button', 'Corrections', 'fa-solid fa-file-alt', async () => {
@@ -1215,7 +1219,7 @@ function updateExtensionButtons() {
         });
         regularButtons.push(correctionsButton);
     }
-    
+
     // Spellchecker button
     if (settings.showSpellcheckerButton) {
         const spellcheckerButton = createActionButton('gg_spellchecker_button', 'Spellchecker', 'fa-solid fa-spell-check', async () => {
@@ -1238,7 +1242,7 @@ function updateExtensionButtons() {
         });
         regularButtons.push(spellcheckerButton);
     }
-    
+
     // Clear Input button
     if (settings.showClearInputButton) {
         const clearInputButton = createActionButton('gg_clear_input_button', 'Clear Input', 'fa-solid fa-trash', async () => {
@@ -1247,20 +1251,20 @@ function updateExtensionButtons() {
         });
         regularButtons.push(clearInputButton);
     }
-    
+
     // Add standard buttons after tool buttons (right side)
-    
+
     // Add impersonate buttons
     if (settings.showImpersonate1stPerson) {
         const btn1 = createActionButton('gg_impersonate_button', 'Guided Impersonate (1st Person)', 'fa-solid fa-user', guidedImpersonate);
         regularButtons.push(btn1);
     }
-    
+
     if (settings.showImpersonate2ndPerson) {
         const btn2 = createActionButton('gg_impersonate_button_2nd', 'Guided Impersonate (2nd Person)', 'fa-solid fa-user-group', guidedImpersonate2nd);
         regularButtons.push(btn2);
     }
-    
+
     if (settings.showImpersonate3rdPerson) {
         const btn3 = createActionButton('gg_impersonate_button_3rd', 'Guided Impersonate (3rd Person)', 'fa-solid fa-users', guidedImpersonate3rd);
         regularButtons.push(btn3);
@@ -1283,19 +1287,19 @@ function updateExtensionButtons() {
         const guidedContinueButton = createActionButton('gg_continue_button', 'Guided Continue', 'fa-solid fa-arrow-right', guidedContinue);
         regularButtons.push(guidedContinueButton);
     }
-    
+
     // Add Undo Last Addition button
     if (settings.showUndoButton) {
         const undoButton = createActionButton('gg_undo_button', 'Undo Last Addition', 'fa-solid fa-rotate-left', undoLastGuidedAddition);
         regularButtons.push(undoButton);
     }
-    
+
     // Add Revert to Original button
     if (settings.showRevertButton) {
         const revertButton = createActionButton('gg_revert_button', 'Revert to Original', 'fa-solid fa-history', revertToOriginalGuidedContinue);
         regularButtons.push(revertButton);
     }
-    
+
     // Append all buttons to the container in the correct order
     regularButtons.forEach(button => {
         actionButtonsContainer.appendChild(button);
@@ -1344,7 +1348,7 @@ function integrateQRBar() {
                 try {
                     // Attempt to move it back to a common parent like send_form
                     // This might not be its exact original parent, but a sensible default
-                    sendForm.appendChild(qrBar); 
+                    sendForm.appendChild(qrBar);
                 } catch (error) {
                     console.error(`${extensionName}: Error moving QR Bar out of gg-qr-container:`, error);
                     // Fallback: if send_form append fails, at least remove from our container if possible
@@ -1368,7 +1372,7 @@ function integrateQRBar() {
 function startQRBarIntegration() {
     // Try to integrate immediately
     let integrated = integrateQRBar();
-    
+
     // If not successful, set up a polling mechanism
     if (!integrated) {
         const integrationInterval = setInterval(() => {
@@ -1377,7 +1381,7 @@ function startQRBarIntegration() {
                 clearInterval(integrationInterval);
             }
         }, 1000); // Check every second
-        
+
         // Stop checking after 30 seconds if not found
         setTimeout(() => {
             if (!integrated) {
@@ -1397,7 +1401,7 @@ function setupQRMutationObserver() {
             clearInterval(integrationTimer);
         }, 30000);
     }, 1000); // Try every second
-    
+
     // Set up a document-wide mutation observer to catch the QR bar whenever it appears
     setTimeout(() => {
         // Watch the entire document for changes
@@ -1414,16 +1418,16 @@ function setupQRMutationObserver() {
                 }
                 return false;
             });
-            
+
             if (shouldTryIntegrate) {
                 integrateQRBar();
             }
         });
-        
+
         // Observe the whole document with a focus on childList and subtree
-        observer.observe(document.body, { 
-            childList: true, 
-            subtree: true 
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
         });
     }, 1000); // Start observing after a short delay to ensure main UI is loaded
 }
@@ -1432,7 +1436,7 @@ function setupQRMutationObserver() {
 async function setup() {
     // Load extension settings
     loadSettings();
-    
+
     // Initialize event listeners for profile and preset switching
     try {
         const { initializeEventListeners } = await import('./scripts/utils/presetUtils.js');
@@ -1441,7 +1445,7 @@ async function setup() {
     } catch (error) {
         console.warn(`${extensionName}: Could not initialize event listeners:`, error);
     }
-    
+
     // Initial UI update - executes after settings are verified loaded
     updateExtensionButtons(); // Initial button creation/update
     // Start the QR Bar integration
@@ -1460,7 +1464,7 @@ async function installPreset() {
     // Derive the preset name from the filename (matching manual import behavior)
     const presetName = presetFileName.replace(/\.json$/i, ''); // Remove .json extension case-insensitively
     // Preset type for Chat Completion parameters (OpenAI/ChatGPT style models)
-    const presetApiId = 'openai'; 
+    const presetApiId = 'openai';
     // Construct the path relative to the SillyTavern root
     const presetPath = `scripts/extensions/third-party/${extensionName}/${presetFileName}`;
 
@@ -1470,18 +1474,18 @@ async function installPreset() {
         if (!response.ok) {
             console.error(`${extensionName}: Failed to fetch ${presetFileName}. Status: ${response.status}`);
             if (response.status === 404) {
-                 console.error(`${extensionName}: Make sure '${presetFileName}' exists in the '${extensionName}' extension folder.`);
+                console.error(`${extensionName}: Make sure '${presetFileName}' exists in the '${extensionName}' extension folder.`);
             }
             return;
         }
 
         // Read the full preset data from the JSON file
-        const presetData = await response.json(); 
+        const presetData = await response.json();
 
         // Validate internal structure: Must have a prompts array with at least one entry containing name and content.
         // Keep this validation even for chat completion presets to ensure the file has the right structure
-        if (!presetData || typeof presetData !== 'object' || 
-            !Array.isArray(presetData.prompts) || presetData.prompts.length === 0 || 
+        if (!presetData || typeof presetData !== 'object' ||
+            !Array.isArray(presetData.prompts) || presetData.prompts.length === 0 ||
             !presetData.prompts[0].name || typeof presetData.prompts[0].content !== 'string') {
             console.error(`${extensionName}: Invalid internal structure in ${presetFileName}. It must be an object containing a 'prompts' array, where the first element has 'name' and 'content' properties. Received structure:`, presetData);
             return;
@@ -1500,7 +1504,7 @@ async function installPreset() {
             // Get the currently selected option
             const $select = $(presetManager.select);
             const currentValue = $select.val();
-            
+
             if (presetManager.isKeyedApi()) {
                 // For keyed APIs (like 'openai'), the value is the name
                 currentPresetName = currentValue;
@@ -1508,7 +1512,7 @@ async function installPreset() {
                 // For indexed APIs, we need to get the text of the selected option
                 currentPresetName = $select.find('option:selected').text();
             }
-        } catch(err) {
+        } catch (err) {
             console.warn(`${extensionName}: Could not determine current preset: ${err}`);
         }
 
@@ -1523,7 +1527,7 @@ async function installPreset() {
             // This matches how performMasterImport handles chat completion presets.
             await presetManager.savePreset(presetName, presetData);
             // console.log(`${extensionName}: Preset "${presetName}" (${presetApiId}) successfully saved (using full data structure and filename).`);
-            
+
             // If we had a previously selected preset, switch back to it
             if (currentPresetName && currentPresetName !== presetName) {
                 try {
@@ -1542,7 +1546,7 @@ async function installPreset() {
                         }
                         // console.log(`${extensionName}: Restored previous ${presetApiId} preset: "${currentPresetName}"`);
                     }, 100); // Small delay to ensure the DOM has updated
-                } catch(err) {
+                } catch (err) {
                     console.warn(`${extensionName}: Could not restore previous preset: ${err}`);
                 }
             }
@@ -1551,7 +1555,7 @@ async function installPreset() {
     } catch (error) {
         console.error(`${extensionName}: Error during preset installation:`, error);
         if (error instanceof SyntaxError) {
-             console.error(`${extensionName}: Check if ${presetFileName} contains valid JSON.`);
+            console.error(`${extensionName}: Check if ${presetFileName} contains valid JSON.`);
         }
     }
 }
@@ -1614,7 +1618,7 @@ $(document).ready(async function () {
                 if (updatePersistentGuideCounterDebounced) {
                     updatePersistentGuideCounterDebounced();
                 }
-                
+
                 // Handle profile and preset changes for the switching system
                 if (eventName === context.eventTypes.CONNECTION_PROFILE_LOADED) {
                     const profileName = args[0];
@@ -1641,14 +1645,14 @@ $(document).ready(async function () {
 
     // Attempt to install the preset (can run relatively early)
     installPreset();
-    
+
     // Initialize other scripts that need context or should run on ready
 
     // Also set up a mutation observer to detect when the QR bar might be added/removed
     const observer = new MutationObserver(() => {
         integrateQRBar();
     });
-    
+
     // Start observing after a delay to ensure main UI is loaded
     setTimeout(() => {
         const sendForm = document.getElementById('send_form');
@@ -1698,7 +1702,7 @@ $(document).ready(async function () {
 
     // Listen for the GENERATION_AFTER_COMMANDS event
     eventSource.on('GENERATION_AFTER_COMMANDS', async (type, generateArgsObject, dryRun) => {
-        
+
         // ENHANCED DEBUGGING: Log every event received
         console.log(`[AUTOTRIGGER-DEBUG] GENERATION_AFTER_COMMANDS event received:`, {
             type: type,
@@ -1712,7 +1716,7 @@ $(document).ready(async function () {
         // Condition for auto-triggering guides
         if ((type === 'normal' || typeof type === 'undefined') && !dryRun && !generateArgsObject?.signal) {
             const settings = extension_settings[extensionName];
-            
+
             // Check if any of the 4 auto-guides are active
             const hasActiveAutoGuides = settings && (
                 settings.autoTriggerThinking ||
@@ -1843,7 +1847,7 @@ async function checkVersionAndNotify() {
     if (!currentVersionInSettings || currentVersionInSettings < defaultVersion) {
         const popupTitle = `${extensionName} v${defaultVersion} Updated`;
         const messageContent = `This version includes an update to Auto-Triggered Guides: they now also run when you use the normal SillyTavern Send button (or press Enter to send), in addition to when using the Guided Response button.\n\nMany of the default Prompts for the Guides have also been updated. If you are still using the defaults, you might want to get the new defaults for a better experience.`;
-        
+
         const userAcknowledged = await showVersionNotification(popupTitle, messageContent);
 
         if (userAcknowledged) {
@@ -1881,7 +1885,7 @@ function countActiveGuides(context) {
  * Updates the display of the persistent guide counter on the pg_menu_button.
  */
 function updatePersistentGuideCounter() {
-    const context = getContext(); 
+    const context = getContext();
     if (!context) {
         console.warn(`${extensionName}: Context not available, cannot update persistent guide counter.`);
         return;
@@ -1902,7 +1906,7 @@ function updatePersistentGuideCounter() {
         pgMenuButton.title = `Persistent Guides: ${count} Injections active.`; // Update the title attribute (mouseover text)
     } else {
         console.warn(`${extensionName}: pg_menu_button NOT found. Counter cannot be displayed.`);
-    } 
+    }
 }
 
 /**
@@ -1917,15 +1921,15 @@ export async function debugProfileSystem() {
 
     try {
         statusElement.textContent = 'Testing profile system...';
-        
+
         // Test getCurrentProfile
         const currentProfile = await getCurrentProfile();
         console.log(`[${extensionName}] Current Profile:`, currentProfile);
-        
+
         // Test getProfileList
         const profileList = await getProfileList();
         console.log(`[${extensionName}] Profile List:`, profileList);
-        
+
         if (Array.isArray(profileList) && profileList.length > 0) {
             statusElement.textContent = `✓ Found ${profileList.length} profiles. Current: ${currentProfile || 'None'}`;
             statusElement.style.color = 'green';
@@ -1933,10 +1937,10 @@ export async function debugProfileSystem() {
             statusElement.textContent = `⚠ No profiles found. Current: ${currentProfile || 'None'}`;
             statusElement.style.color = 'orange';
         }
-        
+
         // Refresh the profile dropdowns
         await updateSettingsUI();
-        
+
     } catch (error) {
         console.error(`[${extensionName}] Error in debugProfileSystem:`, error);
         statusElement.textContent = `✗ Error: ${error.message}`;
@@ -1953,17 +1957,17 @@ async function populatePresetDropdown(presetDropdown) {
         // Get the guide name from the dropdown ID
         const guideName = presetDropdown.id.replace('preset', '');
         const profileFieldName = `profile${guideName}`;
-        
+
         // Check if a profile is already selected for this guide
         const selectedProfile = extension_settings[extensionName]?.[profileFieldName];
-        
+
         if (selectedProfile && selectedProfile.trim() !== '') {
             debugLog(`[${extensionName}] Profile "${selectedProfile}" already selected for ${guideName}, using its presets`);
-            
+
             // Get the API type for the selected profile
             const { getProfileApiType, getPresetsForApiType } = await import('./scripts/persistentGuides/guideExports.js');
             const apiType = await getProfileApiType(selectedProfile);
-            
+
             if (apiType) {
                 // Get presets for this profile's API type
                 const presetList = await getPresetsForApiType(apiType);
@@ -1972,15 +1976,15 @@ async function populatePresetDropdown(presetDropdown) {
                     return;
                 }
             }
-            
+
             debugLog(`[${extensionName}] Failed to get presets for selected profile "${selectedProfile}", falling back to current profile`);
         }
-        
+
         // Fallback: use current profile's presets
         debugLog(`[${extensionName}] Using current profile's presets for ${guideName}`);
         const context = getContext();
         const presetManager = context?.getPresetManager?.();
-        
+
         if (presetManager) {
             const presetList = presetManager.getPresetList();
             await populatePresetDropdownWithList(presetDropdown, presetList);
