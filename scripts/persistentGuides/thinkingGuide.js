@@ -4,7 +4,7 @@
 import { getContext, extension_settings } from './guideExports.js'; // Import from central hub
 import { runGuideScript } from './runGuide.js';
 
-const extensionName = "GuidedGenerations-Extension";
+const extensionName = "GuidedGenerations-Extension_copy";
 
 /**
  * Executes the Thinking Guide script to create an insight into what the character is thinking.

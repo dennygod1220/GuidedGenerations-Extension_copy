@@ -8,7 +8,7 @@ import { getContext, extension_settings, renderExtensionTemplateAsync } from '..
 import { chat, eventSource, event_types, saveChatConditional, addOneMessage } from '../../../../../../script.js';
 
 // Core extension constants and functions (defined locally to avoid circular dependency)
-const extensionName = "GuidedGenerations-Extension";
+const extensionName = "GuidedGenerations-Extension_copy";
 
 // Conditional logging utility that only logs when debug mode is enabled
 function debugLog(...args) {
@@ -124,7 +124,7 @@ export {
     debugLog,
     debugWarn,
     debugError,
-    
+
     // SillyTavern dependencies
     chat,
     eventSource,
@@ -132,7 +132,7 @@ export {
     saveChatConditional,
     addOneMessage,
     renderExtensionTemplateAsync,
-    
+
     // Utility functions
     handleSwitching,
     getProfileApiType,
@@ -145,7 +145,7 @@ export {
     getConnectApiMap,
     initializeEventListeners,
     extractApiIdFromApiType,
-    
+
     // Guides
     runGuideScript,
     clothesGuide,
@@ -164,13 +164,13 @@ export {
     showGuides,
     editGuides,
     updateCharacter,
-    
+
     // Tools
     clearInput,
     corrections,
     editIntros,
     spellchecker,
-    
+
     // Main script functions
     guidedSwipe,
     generateNewSwipe,
@@ -185,7 +185,7 @@ export {
     simpleSend,
     recoverInput,
     loadSettingsPanel,
-    
+
     // Settings and other
     loadSettings,
     updateSettingsUI,
@@ -197,7 +197,7 @@ export {
     getPreviousImpersonateInput,
     setLastImpersonateResult,
     getLastImpersonateResult,
-    
+
     // Debug logging functions
     getDebugMessages,
     clearDebugMessages,

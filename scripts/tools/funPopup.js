@@ -13,10 +13,10 @@ let FUN_PROMPTS = {};
 async function loadFunPrompts() {
     try {
         // Use the correct path for SillyTavern extensions
-        const presetPath = `scripts/extensions/third-party/GuidedGenerations-Extension/scripts/tools/funPrompts.txt`;
-        
+        const presetPath = `scripts/extensions/third-party/GuidedGenerations-Extension_copy/scripts/tools/funPrompts.txt`;
+
         const response = await fetch(presetPath);
-        
+
         if (!response.ok) {
             console.error(`${extensionName}: Failed to load fun prompts file. Status: ${response.status}`);
             if (response.status === 404) {
@@ -24,14 +24,14 @@ async function loadFunPrompts() {
             }
             return;
         }
-        
+
         debugLog(`${extensionName}: Successfully loaded fun prompts from:`, presetPath);
-        
+
         const text = await response.text();
         const lines = text.split('\n').filter(line => line.trim() && !line.startsWith('#'));
-        
+
         FUN_PROMPTS = {};
-        
+
         lines.forEach(line => {
             const parts = line.split('|');
             if (parts.length >= 4) {
@@ -43,7 +43,7 @@ async function loadFunPrompts() {
                 };
             }
         });
-        
+
         debugLog(`${extensionName}: Loaded ${Object.keys(FUN_PROMPTS).length} fun prompts from file`);
     } catch (error) {
         console.error(`${extensionName}: Error loading fun prompts:`, error);
@@ -113,7 +113,7 @@ export class FunPopup {
         // Close button
         const closeBtn = this.popupElement.querySelector('.gg-popup-close');
         const closeFooterBtn = this.popupElement.querySelector('.gg-close-button');
-        
+
         closeBtn.addEventListener('click', () => this.close());
         closeFooterBtn.addEventListener('click', () => this.close());
 
@@ -165,7 +165,7 @@ export class FunPopup {
         const profileValue = extension_settings[extensionName]?.[profileKey] ?? '';
         const presetValue = extension_settings[extensionName]?.[presetKey] ?? '';
         debugLog(`${extensionName}: Using profile: ${profileValue || 'current'}, preset: ${presetValue || 'none'}`);
-        
+
         // Capture the original profile BEFORE any switching happens
         let originalProfile = '';
         try {
@@ -176,7 +176,7 @@ export class FunPopup {
         } catch (error) {
             debugLog(`[FunPopup] Could not get original profile:`, error);
         }
-        
+
         const { switch: switchProfileAndPreset, restore } = await handleSwitching(profileValue, presetValue, originalProfile);
 
         // Get the current input from the textarea
@@ -210,8 +210,8 @@ export class FunPopup {
             }
 
             if (characterListJson !== '[]') {
-                stscriptCommand = 
-`// Group chat logic for Fun Prompt|
+                stscriptCommand =
+                    `// Group chat logic for Fun Prompt|
 /buttons labels=${characterListJson} "Select character to respond"|
 /setglobalvar key=selection {{pipe}}|
 /inject id=instruct position=chat ephemeral=true scan=true depth=0 role=${injectionRole} ${filledPrompt}In addition, make sure to take the following into consideration: {{input}}]|
@@ -235,18 +235,18 @@ export class FunPopup {
         try {
             // Switch profile and preset before executing
             await switchProfileAndPreset();
-            
+
             // Execute the command
             await context.executeSlashCommandsWithOptions(stscriptCommand, {
                 showOutput: false,
                 handleExecutionErrors: true
             });
-            
+
             // Restore original profile and preset after completion
             await restore();
         } catch (error) {
             console.error(`${extensionName}: Error executing fun prompt script:`, error);
-            
+
             // Restore original profile and preset on error
             await restore();
         }
@@ -259,7 +259,7 @@ export class FunPopup {
         if (!this.initialized) {
             await this.init();
         }
-        
+
         this.popupElement.style.display = 'block';
         document.body.classList.add('gg-popup-open');
     }

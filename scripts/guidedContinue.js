@@ -1,6 +1,6 @@
 import { extension_settings, getContext, setPreviousImpersonateInput, getPreviousImpersonateInput, chat, eventSource, event_types, saveChatConditional, addOneMessage } from './persistentGuides/guideExports.js'; // Import from central hub
 
-const extensionName = "GuidedGenerations-Extension";
+const extensionName = "GuidedGenerations-Extension_copy";
 
 // --- State variables for tracking guided continue operations ---
 let isGuidedContinueInProgress = false;
@@ -61,9 +61,9 @@ const guidedContinue = async () => {
         return;
     }
 
-    indexOfMessageToModify = chat.length - 1; 
+    indexOfMessageToModify = chat.length - 1;
     const targetMessage = chat[indexOfMessageToModify];
-    targetMessage.extra = targetMessage.extra || {}; 
+    targetMessage.extra = targetMessage.extra || {};
     if (targetMessage.extra.originalForGuidedContinue === undefined) {
         targetMessage.extra.originalForGuidedContinue = targetMessage.mes;
     }
@@ -85,11 +85,11 @@ const guidedContinue = async () => {
     if (typeof SillyTavern !== 'undefined' && typeof SillyTavern.getContext === 'function') {
         const context = SillyTavern.getContext();
         try {
-            isGuidedContinueInProgress = true; 
+            isGuidedContinueInProgress = true;
             await context.executeSlashCommandsWithOptions(stscriptCommand);
         } catch (error) {
             console.error(`[${extensionName}][Continue] Error executing Guided Continue stscript: ${error}`);
-            isGuidedContinueInProgress = false; 
+            isGuidedContinueInProgress = false;
             indexOfMessageToModify = -1;
             textOfMessageBeforeContinue = '';
         } finally {
@@ -124,14 +124,14 @@ export async function undoLastGuidedAddition() {
         const lastAddition = targetMessage.extra.lastGuidedAddition;
         const currentMessageText = String(targetMessage.mes || '');
         const originalTextBeforeLastAddition = currentMessageText.slice(0, -lastAddition.length);
-        
+
         targetMessage.mes = originalTextBeforeLastAddition;
         targetMessage.is_edited = true; // Mark as edited
-        
+
         deleteFromExtra(targetMessage, 'lastGuidedAddition');
-        
+
         eventSource.emit(event_types.MESSAGE_EDITED, currentChat.length - 1, { isUndoRedo: true, newMes: originalTextBeforeLastAddition });
-        await saveChatConditional(true); 
+        await saveChatConditional(true);
 
         const freshContext = getContext(); // Ensure context is fresh
         if (freshContext && typeof freshContext.reloadCurrentChat === 'function') {
@@ -160,13 +160,13 @@ export async function revertToOriginalGuidedContinue() {
 
     if (typeof targetMessage.extra.originalForGuidedContinue === 'string') {
         const textToRevertTo = targetMessage.extra.originalForGuidedContinue; // Get it first!
-        
+
         targetMessage.mes = textToRevertTo; // Use the local const
         targetMessage.is_edited = true; // Mark as edited
-        
-        deleteFromExtra(targetMessage, 'originalForGuidedContinue'); 
-        deleteFromExtra(targetMessage, 'lastGuidedAddition');      
-        
+
+        deleteFromExtra(targetMessage, 'originalForGuidedContinue');
+        deleteFromExtra(targetMessage, 'lastGuidedAddition');
+
         eventSource.emit(event_types.MESSAGE_EDITED, currentChat.length - 1, { isUndoRedo: true, newMes: textToRevertTo }); // Use the local const
         await saveChatConditional(true);
 

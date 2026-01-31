@@ -4,7 +4,7 @@ import { getContext, extension_settings, debugLog, setPreviousImpersonateInput, 
 
 // Helper function for delays
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-const extensionName = "GuidedGenerations-Extension";
+const extensionName = "GuidedGenerations-Extension_copy";
 // Helper function to execute STScripts using the context method
 // NOTE: This version assumes executeSlashCommandsWithOptions exists and handles errors locally.
 // It might need adjustments based on the exact SillyTavern API if it changes.
@@ -196,13 +196,13 @@ const guidedSwipe = async () => {
         if (originalInput.trim() || (promptTemplate.trim() !== '' && promptTemplate.trim() !== '{{input}}')) {
             // Use the currentInjectionRole retrieved above
             const stscriptCommand = `/inject id=instruct position=chat ephemeral=true scan=true depth=${depth} role=${injectionRole} ${filledPrompt} |`;
-            
+
             // Get context and execute directly
             if (typeof SillyTavern !== 'undefined' && typeof SillyTavern.getContext === 'function') {
                 const context = SillyTavern.getContext();
                 if (typeof context.executeSlashCommandsWithOptions === 'function') {
                     await context.executeSlashCommandsWithOptions(stscriptCommand);
-                    debugLog('[Swipe] Executed Command:', stscriptCommand); 
+                    debugLog('[Swipe] Executed Command:', stscriptCommand);
                 } else {
                     throw new Error("context.executeSlashCommandsWithOptions function not found.");
                 }
@@ -212,7 +212,7 @@ const guidedSwipe = async () => {
         } else {
             debugLog("[Swipe] No input detected, skipping injection.");
         }
-        
+
 
         // Wait for the injection to appear in context (with retries and delay)
         let injectionFound = false;
@@ -246,7 +246,7 @@ const guidedSwipe = async () => {
             return; // Stop execution
         }
 
-                // --- 2. Generate the new swipe --- (This now only runs if injection was found)
+        // --- 2. Generate the new swipe --- (This now only runs if injection was found)
         debugLog('[Swipe] Instruction injection confirmed. Proceeding to generate new swipe...');
         const swipeSuccess = await generateNewSwipe();
 

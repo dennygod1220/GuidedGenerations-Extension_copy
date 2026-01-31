@@ -9,7 +9,7 @@ import stateGuide from './persistentGuides/stateGuide.js'; // Correct relative p
 import clothesGuide from './persistentGuides/clothesGuide.js'; // Correct relative path
 import customAutoGuide from './persistentGuides/customAutoGuide.js'; // Import the new Custom Auto Guide
 
-const extensionName = "GuidedGenerations-Extension";
+const extensionName = "GuidedGenerations-Extension_copy";
 
 const guidedResponse = async () => {
     const textarea = document.getElementById('send_textarea');
@@ -68,7 +68,7 @@ const guidedResponse = async () => {
 
         if (characterListJson !== '[]') {
             // Pass the generated JSON string to the labels parameter
-            stscriptCommand = 
+            stscriptCommand =
                 `// Group chat logic (JS handled selection list via context)|
 /buttons labels=${characterListJson} "Select member to respond as" |
 /setglobalvar key=selection {{pipe}} |
@@ -78,14 +78,14 @@ const guidedResponse = async () => {
         } else {
             console.warn(`[${extensionName}][Response] Could not get character list for group chat selection. Falling back to single character logic.`);
             // Fallback to single character logic if character list is empty or invalid
-            stscriptCommand = 
+            stscriptCommand =
                 `// Single character logic (fallback from group)|
 /inject id=instruct position=chat ephemeral=true scan=true depth=${depth} role=${injectionRole} ${filledPrompt}|
 /trigger await=true|
 `;
         }
     } else {
-        stscriptCommand = 
+        stscriptCommand =
             `// Single character logic|
 /inject id=instruct position=chat ephemeral=true scan=true depth=${depth} role=${injectionRole} ${filledPrompt}|
 /trigger await=true|
@@ -100,7 +100,7 @@ const guidedResponse = async () => {
             await context.executeSlashCommandsWithOptions(stscriptCommand);
 
             debugLog('[Response] Executed Command:', stscriptCommand); // Log the command
-            
+
         } catch (error) {
             console.error(`[GuidedGenerations][Response] Error executing Guided Response stscript: ${error}`);
         } finally {
@@ -116,10 +116,10 @@ const guidedResponse = async () => {
         console.error('[GuidedGenerations][Response] SillyTavern context is not available.');
         // Even if context isn't available, attempt restore if textarea exists
         if (textarea) {
-             const restoredInput = getPreviousImpersonateInput();
-             debugLog(`[Response] Restoring input field after context error: "${restoredInput}"`);
-             textarea.value = restoredInput;
-             textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            const restoredInput = getPreviousImpersonateInput();
+            debugLog(`[Response] Restoring input field after context error: "${restoredInput}"`);
+            textarea.value = restoredInput;
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
         }
     }
 };
