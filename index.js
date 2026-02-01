@@ -287,6 +287,8 @@ export const defaultSettings = {
     writeCustomGuideToVar: false, // Enable writing Custom Guide content to ST variable
     writeCustomAutoGuideToVar: false, // Enable writing Custom Auto Guide content to ST variable
     customAutoGuideVarName: 'custom_auto_guide', // Variable name for Custom Auto Guide
+    autoTriggerSDAfterCustomAutoGuide: false, // Enable auto-triggering SD after Custom Auto Guide
+    customAutoGuideSDCommand: '/getvar key=custom_auto_guide | /sd extend=false {{pipe}}', // SD command template
     LastPatchNoteVersion: '1.4.3' // Default extension version for patch notes
 };
 
@@ -469,7 +471,7 @@ async function updateSettingsUI() {
         });
 
         // Populate guide prompt override textareas
-        ['promptClothes', 'promptState', 'promptThinking', 'promptSituational', 'promptRules', 'promptCorrections', 'promptSpellchecker', 'promptImpersonate1st', 'promptImpersonate2nd', 'promptImpersonate3rd', 'promptGuidedResponse', 'promptGuidedSwipe', 'promptGuidedContinue', 'customAutoGuidePrompt'].forEach(key => {
+        ['promptClothes', 'promptState', 'promptThinking', 'promptSituational', 'promptRules', 'promptCorrections', 'promptSpellchecker', 'promptImpersonate1st', 'promptImpersonate2nd', 'promptImpersonate3rd', 'promptGuidedResponse', 'promptGuidedSwipe', 'promptGuidedContinue', 'customAutoGuidePrompt', 'customAutoGuideSDCommand'].forEach(key => {
             const textarea = document.getElementById(`gg_${key}`);
             if (textarea) {
                 textarea.value = extension_settings[extensionName][key] ?? defaultSettings[key] ?? '';

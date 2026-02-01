@@ -202,6 +202,22 @@
                         指定 Custom Auto Guide 內容要寫入的變數名稱（預設：<code>custom_auto_guide</code>）。可使用 <code>/echo {{getvar::變數名稱}}</code> 查看內容。
                     </small>
                 </div>
+                <div class="setting_item">
+                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                        <input type="checkbox" id="gg_autoTriggerSDAfterCustomAutoGuide" name="autoTriggerSDAfterCustomAutoGuide" class="gg-setting-input">
+                        <label for="gg_autoTriggerSDAfterCustomAutoGuide" style="margin-left: 8px;">自動觸發 SD 生圖</label>
+                    </div>
+                    <small class="setting_item_description">
+                        啟用後，Custom Auto Guide 完成後會自動執行下方的 SD 指令來生成圖片。
+                    </small>
+                </div>
+                <div class="setting_item">
+                    <label for="gg_customAutoGuideSDCommand" style="margin-bottom: 5px; display: block;">SD 指令模板：</label>
+                    <textarea id="gg_customAutoGuideSDCommand" name="customAutoGuideSDCommand" class="gg-setting-input text_pole" rows="2" placeholder="/getvar key=custom_auto_guide | /sd extend=false {{pipe}}" style="width: 100%;"></textarea>
+                    <small class="setting_item_description">
+                        Custom Auto Guide 完成後要執行的 SD 指令。可自訂參數，例如：<code>/getvar key=custom_auto_guide | /sd extend=false {{pipe}}</code>
+                    </small>
+                </div>
                 <hr>
                 <h4>Preset Usage</h4>
                                 <small class="setting_item_description">Assign specific System Prompts (Presets) to different Guided Generation actions. When a preset is selected, it will be temporarily activated just before the guide runs, then deactivated. Use the 'GGSystemPrompt' button to quickly fill the field with the default guidance preset.</small>
