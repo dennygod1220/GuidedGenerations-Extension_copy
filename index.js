@@ -1801,7 +1801,10 @@ $(document).ready(async function () {
                 }
                 if (settings.enableAutoCustomAutoGuide) {
                     console.log(`[AUTOTRIGGER-DEBUG] Executing customAutoGuide with executionId: ${Math.random().toString(36).substr(2, 9)}`);
-                    await customAutoGuide(true); // Pass isAuto=true
+                    // Fire-and-forget: Don't await, let Custom Auto Guide (and SD) run in background
+                    customAutoGuide(true).catch(error => {
+                        console.error(`[${extensionName}] Error in customAutoGuide auto-trigger:`, error);
+                    });
                 }
             } else {
                 console.warn('GuidedGenerations-Extension: Extension settings not found, cannot auto-trigger guides.');
