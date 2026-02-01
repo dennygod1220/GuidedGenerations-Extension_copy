@@ -127,15 +127,15 @@ export async function runGuideScript({ guideId, genAs = '', genCommandSuffix = '
                             if (autoTriggerSD) {
                                 const sdCommand = extension_settings[extensionName]?.customAutoGuideSDCommand ?? '/getvar key=custom_auto_guide | /sd extend=false {{pipe}}';
                                 debugLog(`[${extensionName}] Auto-triggering SD command: ${sdCommand}`);
-                                try {
-                                    await context.executeSlashCommandsWithOptions(sdCommand, {
-                                        showOutput: false,
-                                        handleExecutionErrors: true
-                                    });
+                                // Fire-and-forget: Don't await, let SD run in background
+                                context.executeSlashCommandsWithOptions(sdCommand, {
+                                    showOutput: false,
+                                    handleExecutionErrors: true
+                                }).then(() => {
                                     debugLog(`[${extensionName}] SD command executed successfully`);
-                                } catch (sdError) {
+                                }).catch((sdError) => {
                                     console.error(`[${extensionName}] Error executing SD command:`, sdError);
-                                }
+                                });
                             }
                         } catch (error) {
                             console.error(`[${extensionName}] Error writing to variable "${varName}":`, error);
