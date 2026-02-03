@@ -10,10 +10,10 @@
 
 ## 📋 快速使用
 
-### 1. 導入 QR
-```
-/qr-import file=scripts/extensions/third-party/GuidedGenerations-Extension_copy/qr/comfyui_image_gen.json
-```
+### 1. 導入 QR Set
+1. SillyTavern 設定 → Quick Replies
+2. Import QR Set → 選擇 `qr/comfyui_image_gen.json`
+3. 啟用 "ComfyUI 生圖" QR Set
 
 ### 2. 確認設定
 - ✅ Enable writing Custom Auto Guide to ST variable

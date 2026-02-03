@@ -1,6 +1,6 @@
 {
     "version": 2,
-    "name": "ComfyUI 生圖",
+    "name": "搭配GG",
     "disableSend": false,
     "placeBeforeInput": false,
     "injectInput": false,
@@ -8,14 +8,13 @@
     "onlyBorderColor": false,
     "qrList": [
         {
-            "id": 1,
-            "icon": "fa-user",
-            "showLabel": true,
-            "label": "真實人物",
-            "title": "使用真實人物風格生成圖片 - 保持角色外觀",
-            "message": "/run scripts/extensions/third-party/GuidedGenerations-Extension_copy/scripts/qr/comfyui_realistic.stscript",
+            "id": 6,
+            "showLabel": false,
+            "label": "VAR",
+            "title": "",
+            "message": "/listvar",
             "contextList": [],
-            "preventAutoExecute": false,
+            "preventAutoExecute": true,
             "isHidden": false,
             "executeOnStartup": false,
             "executeOnUser": false,
@@ -24,17 +23,17 @@
             "executeOnGroupMemberDraft": false,
             "executeOnNewChat": false,
             "executeBeforeGeneration": false,
-            "automationId": "gg_comfyui_realistic"
+            "automationId": ""
         },
         {
             "id": 2,
-            "icon": "fa-theater-masks",
+            "icon": "fa-trash-alt",
             "showLabel": true,
-            "label": "卡通動漫",
-            "title": "使用卡通/動漫風格生成圖片 - 參照卡通風格",
-            "message": "/run scripts/extensions/third-party/GuidedGenerations-Extension_copy/scripts/qr/comfyui_anime.stscript",
+            "label": "",
+            "title": "",
+            "message": "/del 1",
             "contextList": [],
-            "preventAutoExecute": false,
+            "preventAutoExecute": true,
             "isHidden": false,
             "executeOnStartup": false,
             "executeOnUser": false,
@@ -43,17 +42,17 @@
             "executeOnGroupMemberDraft": false,
             "executeOnNewChat": false,
             "executeBeforeGeneration": false,
-            "automationId": "gg_comfyui_anime"
+            "automationId": ""
         },
         {
-            "id": 3,
-            "icon": "fa-city",
+            "id": 4,
+            "icon": "fa-image",
             "showLabel": true,
-            "label": "場景風格",
-            "title": "使用場景/風格參考生成圖片 - 參照環境氛圍",
-            "message": "/run scripts/extensions/third-party/GuidedGenerations-Extension_copy/scripts/qr/comfyui_scene.stscript",
+            "label": "Img",
+            "title": "",
+            "message": "/getvar key=custom_auto_guide |\n\n/sd extend=false {{pipe}}\n\n",
             "contextList": [],
-            "preventAutoExecute": false,
+            "preventAutoExecute": true,
             "isHidden": false,
             "executeOnStartup": false,
             "executeOnUser": false,
@@ -62,8 +61,8 @@
             "executeOnGroupMemberDraft": false,
             "executeOnNewChat": false,
             "executeBeforeGeneration": false,
-            "automationId": "gg_comfyui_scene"
+            "automationId": ""
         }
     ],
-    "idIndex": 3
+    "idIndex": 6
 }

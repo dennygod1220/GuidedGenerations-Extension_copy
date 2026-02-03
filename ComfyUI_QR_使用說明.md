@@ -68,20 +68,19 @@
 
 ## 📥 安裝步驟
 
-### 方法一:手動導入 QR
+### 手動導入 QR Set
 
-1. 在 SillyTavern 中打開 **Quick Replies** 設定
-2. 點擊 **Import** 按鈕
-3. 選擇文件: `GuidedGenerations-Extension_copy/qr/comfyui_image_gen.json`
-4. 導入完成後,你會看到三個新按鈕
+1. 在 SillyTavern 中點擊右上角的 **⚙️ 設定圖示**
+2. 找到並點擊 **Quick Replies** 設定
+3. 點擊 **Import QR Set** 按鈕
+4. 瀏覽並選擇文件: `GuidedGenerations-Extension_copy/qr/comfyui_image_gen.json`
+5. 導入完成後,你會看到一個名為 **"ComfyUI 生圖"** 的 QR Set
+6. 在這個 QR Set 中包含三個按鈕:
+   - 🧑 **真實人物**
+   - 🎭 **卡通動漫**
+   - 🏙️ **場景風格**
 
-### 方法二:使用 STscript 導入
-
-在 SillyTavern 聊天框中執行:
-
-```
-/qr-import file=scripts/extensions/third-party/GuidedGenerations-Extension_copy/qr/comfyui_image_gen.json
-```
+> **注意**: 導入的是完整的 QR Set,不是單個按鈕。你可以在 Quick Replies 設定中啟用/停用這個 QR Set。
 
 ## ⚙️ 前置設定
 
