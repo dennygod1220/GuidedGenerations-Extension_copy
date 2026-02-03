@@ -27,8 +27,8 @@ Character Race: East Asian
 /getvar key=custom_auto_guide |
 /let current_prompt {{pipe}} |
 
-// 檢查是否為空
-/if left={{var::current_prompt}} rule=empty else=":call_comfyui" |
+// 檢查是否有內容 (使用 rule=not 檢查是否為真值)
+/if left={{var::current_prompt}} rule=not else=":call_comfyui" |
     /echo ❌ Custom Auto Guide 變數為空！ |
     /echo 📝 請先生成場景描述: |
     /echo   方法1: 點擊 Persistent Guides 菜單 → Custom Auto |
