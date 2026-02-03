@@ -44,7 +44,7 @@
 所有三個按鈕都會:
 
 1. **檢查變數** → 檢查 `custom_auto_guide` 變數是否有內容
-2. **自動生成** → 如果變數為空,自動執行 Custom Auto Guide 生成
+2. **提示生成** → 如果變數為空,顯示如何生成的提示訊息
 3. **組合 Prompt** → 將**提示詞前綴** + **Custom Auto Guide 內容**組合
 4. **呼叫 ComfyUI** → 使用組合後的完整 prompt 呼叫 ComfyUI
 
@@ -56,7 +56,7 @@
 檢查 custom_auto_guide 變數
   ↓
 變數為空? 
-  ├─ 是 → 自動生成 Custom Auto Guide
+  ├─ 是 → 顯示提示訊息,中止執行
   └─ 否 → 使用現有內容
   ↓
 組合: [提示詞前綴] + [Custom Auto Guide]
@@ -65,6 +65,23 @@
   ↓
 完成!
 ```
+
+### 如何生成 Custom Auto Guide?
+
+**方法 1: 手動生成 (推薦)**
+- 點擊 Persistent Guides 菜單 (🧙 圖示)
+- 選擇 "Custom Auto"
+- 系統會分析當前場景並生成描述
+
+**方法 2: 自動觸發**
+- 在擴展設定中啟用 "Auto-trigger Custom Auto Guide"
+- 每次 AI 回覆後自動生成
+
+**方法 3: 使用 Guided Response**
+- 使用 Guided Response 功能時會自動生成
+- 變數會自動更新
+
+> **提示**: 建議使用方法 1 或 2,確保變數內容是最新的場景描述
 
 ## 📥 安裝步驟
 
