@@ -1,0 +1,23 @@
+// ComfyUI 強制重生腳本
+// 強制重新生成 custom_auto_guide 並呼叫 ComfyUI
+
+/echo 🔄 強制重新生成 Custom Auto Guide... |
+
+// 執行 Custom Auto Guide
+/run-persistent-guide customAuto |
+/delay 1000 |
+
+// 獲取生成的 prompt
+/getvar key=custom_auto_guide |
+/let final_prompt {{pipe}} |
+
+// 檢查是否成功獲取
+/if left={{var::final_prompt}} rule=empty else=":call_comfyui" |
+    /echo ❌ 無法生成 Custom Auto Guide，請檢查設定 |
+    /abort |
+:call_comfyui |
+
+// 呼叫 ComfyUI
+/echo 🎨 正在呼叫 ComfyUI 生成圖片... |
+/sd extend=false {{var::final_prompt}} |
+/echo ✅ ComfyUI 請求已發送！ |

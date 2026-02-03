@@ -1,0 +1,235 @@
+{
+  "8": {
+    "inputs": {
+      "seed": "%seed%",
+      "steps": "%steps%",
+      "cfg": "%scale%",
+      "sampler_name": "%sampler%",
+      "scheduler": "%scheduler%",
+      "denoise": "%denoise%",
+      "model": [
+        "71",
+        0
+      ],
+      "positive": [
+        "16",
+        0
+      ],
+      "negative": [
+        "56",
+        0
+      ],
+      "latent_image": [
+        "51",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "14": {
+    "inputs": {
+      "prompt": "%negative_prompt%",
+      "clip": [
+        "60",
+        0
+      ],
+      "vae": [
+        "61",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImageEditPlus",
+    "_meta": {
+      "title": "文本编码（QwenImageEditPlus）"
+    }
+  },
+  "15": {
+    "inputs": {
+      "pixels": [
+        "30",
+        0
+      ],
+      "vae": [
+        "61",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE编码"
+    }
+  },
+  "16": {
+    "inputs": {
+      "conditioning": [
+        "50",
+        0
+      ],
+      "latent": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "参考Latent"
+    }
+  },
+  "18": {
+    "inputs": {
+      "samples": [
+        "8",
+        0
+      ],
+      "vae": [
+        "61",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "30": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "largest_size": 1024,
+      "image": [
+        "72",
+        0
+      ]
+    },
+    "class_type": "ImageScaleToMaxDimension",
+    "_meta": {
+      "title": "图像缩放到最大尺寸"
+    }
+  },
+  "46": {
+    "inputs": {
+      "images": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
+  "48": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "largest_size": "%height%",
+      "image": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "ImageScaleToMaxDimension",
+    "_meta": {
+      "title": "图像缩放到最大尺寸"
+    }
+  },
+  "50": {
+    "inputs": {
+      "prompt": "%prompt%",
+      "clip": [
+        "60",
+        0
+      ],
+      "vae": [
+        "61",
+        0
+      ],
+      "image1": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImageEditPlus",
+    "_meta": {
+      "title": "文本编码（QwenImageEditPlus）"
+    }
+  },
+  "51": {
+    "inputs": {
+      "width": 768,
+      "height": 768,
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "空Latent图像（SD3）"
+    }
+  },
+  "56": {
+    "inputs": {
+      "conditioning": [
+        "14",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "条件零化"
+    }
+  },
+  "60": {
+    "inputs": {
+      "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载CLIP"
+    }
+  },
+  "61": {
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载VAE"
+    }
+  },
+  "68": {
+    "inputs": {
+      "unet_name": "%model%"
+    },
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "Unet Loader (GGUF)"
+    }
+  },
+  "71": {
+    "inputs": {
+      "reuse_threshold": 0.2,
+      "start_percent": 0.15,
+      "end_percent": 0.95,
+      "verbose": false,
+      "model": [
+        "68",
+        0
+      ]
+    },
+    "class_type": "EasyCache",
+    "_meta": {
+      "title": "EasyCache"
+    }
+  },
+  "72": {
+    "inputs": {
+      "data": "%char_avatar%"
+    },
+    "class_type": "LoadImageFromBase64",
+    "_meta": {
+      "title": "Load Image From Base64"
+    }
+  }
+}

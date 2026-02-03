@@ -1,0 +1,32 @@
+// ComfyUI 真實人物風格生圖腳本
+// 適用於真實人物角色卡,保持角色外觀
+
+// 定義提示詞前綴
+/let prefix [You are an assistant enhancing the prompt.\nAdd another person to this image. The person in the original image is {{char}}, keep their appearance exactly the same. Add {{user}} as a new person in the scene.\n\nVisual Requirements:\n- Only {{user}} and {{char}} appear in the image, no other people\n- No text or watermarks in the image\n- Realistic skin tones for East Asian characters, no unnatural colors\n\nAnatomical Requirements:\n- Correct human anatomy: each person has exactly 2 arms, 2 legs, 1 head\n- Natural human poses only, no impossible or contorted positions\n- Correct gender characteristics: males have male anatomy, females have female anatomy\n- No extra limbs, no missing body parts\n- Proper body proportions and joint positions\n\nCharacter Race: East Asian\n] |
+
+// 獲取當前 custom_auto_guide 變數內容
+/getvar key=custom_auto_guide |
+/let current_prompt {{pipe}} |
+
+// 檢查是否為空,如果為空則先生成
+/if left={{var::current_prompt}} rule=empty else=":generate_image" |
+    /echo 🔄 Custom Auto Guide 變數為空，正在生成... |
+    /run-persistent-guide customAuto |
+    /delay 1000 |
+    /getvar key=custom_auto_guide |
+    /let current_prompt {{pipe}} |
+:generate_image |
+
+// 檢查是否成功獲取
+/if left={{var::current_prompt}} rule=empty else=":call_comfyui" |
+    /echo ❌ 無法生成 Custom Auto Guide，請檢查設定 |
+    /abort |
+:call_comfyui |
+
+// 組合完整 prompt: 前綴 + Custom Auto Guide 內容
+/let final_prompt {{var::prefix}}\n\n{{var::current_prompt}} |
+
+// 呼叫 ComfyUI
+/echo 🎨 正在使用真實人物風格呼叫 ComfyUI... |
+/sd extend=false {{var::final_prompt}} |
+/echo ✅ ComfyUI 請求已發送！(真實人物風格) |

@@ -1,0 +1,28 @@
+// ComfyUI 生圖腳本
+// 檢查 custom_auto_guide 變數是否有內容，沒有則先生成
+
+// 獲取當前變數內容
+/getvar key=custom_auto_guide |
+/let current_prompt {{pipe}} |
+
+// 檢查是否為空
+/if left={{var::current_prompt}} rule=empty else=":generate_image" |
+    /echo 🔄 Custom Auto Guide 變數為空，正在生成... |
+    /run-persistent-guide customAuto |
+    /delay 1000 |
+:generate_image |
+
+// 獲取最新的 prompt
+/getvar key=custom_auto_guide |
+/let final_prompt {{pipe}} |
+
+// 檢查是否成功獲取
+/if left={{var::final_prompt}} rule=empty else=":call_comfyui" |
+    /echo ❌ 無法生成 Custom Auto Guide，請檢查設定 |
+    /abort |
+:call_comfyui |
+
+// 呼叫 ComfyUI
+/echo 🎨 正在呼叫 ComfyUI 生成圖片... |
+/sd extend=false {{var::final_prompt}} |
+/echo ✅ ComfyUI 請求已發送！ |

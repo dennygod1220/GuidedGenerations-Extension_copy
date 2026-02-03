@@ -1,0 +1,47 @@
+[
+    {
+        "label": "👤 真實人物",
+        "title": "使用真實人物風格生成圖片 - 保持角色外觀",
+        "message": "",
+        "automationId": "gg_comfyui_realistic",
+        "contextList": [],
+        "preventAutoExecute": false,
+        "isHidden": false,
+        "executeOnStartup": false,
+        "executeOnUser": false,
+        "executeOnAi": false,
+        "executeOnChatChange": false,
+        "executeOnGroupMemberDraft": false,
+        "command": "/run scripts/extensions/third-party/GuidedGenerations-Extension_copy/scripts/qr/comfyui_realistic.stscript"
+    },
+    {
+        "label": "🎭 卡通動漫",
+        "title": "使用卡通/動漫風格生成圖片 - 參照卡通風格",
+        "message": "",
+        "automationId": "gg_comfyui_anime",
+        "contextList": [],
+        "preventAutoExecute": false,
+        "isHidden": false,
+        "executeOnStartup": false,
+        "executeOnUser": false,
+        "executeOnAi": false,
+        "executeOnChatChange": false,
+        "executeOnGroupMemberDraft": false,
+        "command": "/run scripts/extensions/third-party/GuidedGenerations-Extension_copy/scripts/qr/comfyui_anime.stscript"
+    },
+    {
+        "label": "🌆 場景風格",
+        "title": "使用場景/風格參考生成圖片 - 參照環境氛圍",
+        "message": "",
+        "automationId": "gg_comfyui_scene",
+        "contextList": [],
+        "preventAutoExecute": false,
+        "isHidden": false,
+        "executeOnStartup": false,
+        "executeOnUser": false,
+        "executeOnAi": false,
+        "executeOnChatChange": false,
+        "executeOnGroupMemberDraft": false,
+        "command": "/run scripts/extensions/third-party/GuidedGenerations-Extension_copy/scripts/qr/comfyui_scene.stscript"
+    }
+]
